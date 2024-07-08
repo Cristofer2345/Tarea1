@@ -29,9 +29,11 @@
                     <span class="badge text-bg-warning">{{ $task->user?->name }}</span>
                 </td>
                 <td>
-                    <svg class="bi" width="24" height="24">
-                        <use xlink:href="#check" />
-                    </svg>
+                    
+                    @foreach ($task->tipoTarea as $especialidad)
+                    <p class="badge bg-primary">{{ $especialidad->name }}</p>
+
+                @endforeach
                 </td>
                 <td>
                     @if ($task->completed == true)

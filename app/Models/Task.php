@@ -19,4 +19,8 @@ class Task extends Model
     {
         return $this->belongsTo(User::class);
     }
+    public function tipoTarea()
+    {
+        return $this->belongsToMany(TipoTarea::class, 'tablamtipotarea', 'idTarea', 'idTipo');
+    }
 }

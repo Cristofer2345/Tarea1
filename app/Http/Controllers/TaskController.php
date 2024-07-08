@@ -4,7 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Models\Priority;
 use App\Models\Task;
+use App\Models\TipoTarea;
 use App\Models\User;
+use Database\Seeders\tipoTarea as SeedersTipoTarea;
 use Illuminate\Http\Request;
 
 class TaskController extends Controller
@@ -24,7 +26,8 @@ class TaskController extends Controller
 
         return view('tasks.create',[
             'priorities' => Priority::all(),
-            'user' => User::all()
+            'user' => User::all(),
+            'tipoTarea' =>TipoTarea::all()
         ]);
     }
 
@@ -39,42 +42,57 @@ class TaskController extends Controller
     public function store()
     {
 
-        // $task = new Task();
-
-        // $task->name = request('name'); 
-        // $task->description = request('description');
-
-        // $task->save();
         $data = request()->validate([
             'name' => ['required', 'min:3', 'max:255'],
             'description' => ['required', 'min:3'],
             'priority_id' => 'required|exists:priorities,id',
-            'User_id' => 'required|exists:users,id'
+            'User_id' => 'required|exists:users,id', 
+           'tags' => 'array', // Asegúrate de que 'tags' sea un array
+        'tags.*' => 'exists:tipoTarea,id',
         ]);
-
-        Task::create($data);
-
+    
+        // Crear una nueva tarea con los datos validados
+        $task = Task::create([
+            'name' => $data['name'],
+            'description' => $data['description'],
+            'priority_id' => $data['priority_id'],
+            'user_id' => $data['User_id'],
+        ],);
+        // Adjuntar las etiquetas (tipotarea) a la tarea
+        $task->tipoTarea()->attach($data['tags']);
+        $task  = Task::with(['tipoTarea'])->get();
         return redirect('/tasks');
     }
 
     public function edit(Task $task)
     {
-
+       $tipotarea = TipoTarea::all();
+       $priority = Priority::all();
         return view('tasks.edit', [
-            'task' => $task
+            'task' => $task,
+             'priority'=> $priority,
+             'tipotarea'=>$tipotarea
         ]);
     }
 
     public function update(Task $task)
     {
-
-        $data = request()->validate([
+        $validatedData = request()->validate([
             'name' => ['required', 'min:3', 'max:255'],
-            'description' => ['required', 'min:3']
+            'description' => ['required', 'min:3'],
+            'tipoTareas' => ['required', 'array'], // Validación para los tipos de tarea seleccionados
+            'tipoTareas.*' => ['exists:tipoTarea,id'] // Validación para cada tipo de tarea
         ]);
-
-       $task->fill($data)->save();
-       //$task->update($data);
+    
+        // Actualización de los datos básicos de la tarea
+        $task->update([
+            'name' => $validatedData['name'],
+            'description' => $validatedData['description'],
+        ]);
+    
+        // Actualización de la relación muchos a muchos (tipos de tarea)
+        $task->tipoTarea()->sync($validatedData['tipoTareas']);
+    
 
         return redirect('/tasks/' . $task->id);
     }

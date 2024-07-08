@@ -44,6 +44,11 @@
             <p>{{ $message }}</p>
         @enderror
     </div>
+    <select name="tags[]" id="tags" multiple>
+        @foreach($tipoTarea as $tag)
+            <option value="{{ $tag->id }}">{{ $tag->name }}</option>
+        @endforeach
+    </select>
     <div>
         <label class="form-label" for="description">Descripción</label>
         <textarea class="form-control" name="description" id="description" cols="30" rows="10"></textarea>

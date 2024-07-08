@@ -21,6 +21,27 @@
             <p>{{ $message }}</p>
         @enderror
     </div>
+    <select class="form-select" name="priority" id="priority" required>
+        <option value="">Selecciona una prioridad</option>
+        @foreach ($priority as $priority)
+            <option value="{{ $priority->id }}" {{ $task->priority_id == $priority->id ? 'selected' : '' }}>
+                {{ $priority->name }}
+            </option>
+        @endforeach
+    </select>
+    <div>
+        <label class="form-label" for="tipoTarea">Tipo de Tarea</label>
+        <select class="form-select" name="tipoTareas[]" id="tipoTarea" required multiple>
+            @foreach ($tipotarea as $tipo)
+                <option value="{{ $tipo->id }}" {{ $task->idTarea == $tipo->id ? 'selected' : '' }}>
+                    {{ $tipo->name }}
+                </option>
+            @endforeach
+        </select>
+        @error('tipoTarea')
+            <p class="text-danger">{{ $message }}</p>
+        @enderror
+    </div>
     <div>
         <label class="form-label" for="description">Descripción</label>
         <textarea class="form-control" name="description" id="description" cols="30" rows="10">{{ $task->description }}</textarea>
