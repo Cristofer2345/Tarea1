@@ -68,6 +68,7 @@ class TaskController extends Controller
     {
        $tipotarea = TipoTarea::all();
        $priority = Priority::all();
+       
         return view('tasks.edit', [
             'task' => $task,
              'priority'=> $priority,
@@ -80,17 +81,18 @@ class TaskController extends Controller
         $validatedData = request()->validate([
             'name' => ['required', 'min:3', 'max:255'],
             'description' => ['required', 'min:3'],
-            'tipoTareas' => ['required', 'array'], // Validación para los tipos de tarea seleccionados
-            'tipoTareas.*' => ['exists:tipoTarea,id'] // Validación para cada tipo de tarea
+            'tipoTareas' => ['required', 'array'], 
+            'tipoTareas.*' => ['exists:tipoTarea,id'], 
+            'User_id' => 'required|exists:users,id',
         ]);
     
-        // Actualización de los datos básicos de la tarea
         $task->update([
             'name' => $validatedData['name'],
             'description' => $validatedData['description'],
+            'user_id' =>$validatedData['User_id']
         ]);
     
-        // Actualización de la relación muchos a muchos (tipos de tarea)
+       
         $task->tipoTarea()->sync($validatedData['tipoTareas']);
     
 

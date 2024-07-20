@@ -33,16 +33,9 @@
         @enderror
     </div>
     <div>
-        <label class="form-label" for="name">Usuario</label>
-        <select name="User_id" id="priority_id" class="form-control">
-            @foreach($user as $priority)
-                <option value="{{ $priority->id }}">{{ $priority->name }}</option>
-            @endforeach
-            
-        </select>
-        @error('priority_id')
-            <p>{{ $message }}</p>
-        @enderror
+        <label class="form-label" for="User_id">Usuario</label>
+        <input type="text" class="form-control" name="User_id" value="{{ Auth::user()->name }}" readonly>
+        <input type="hidden" name="User_id" value="{{ Auth::user()->id }}">
     </div>
     <select name="tags[]" id="tags" multiple>
         @foreach($tipoTarea as $tag)

@@ -21,6 +21,11 @@
             <p>{{ $message }}</p>
         @enderror
     </div>
+    <div>
+        <label class="form-label" for="User_id">Usuario</label>
+        <input type="text" class="form-control" name="User_id" value="{{ Auth::user()->name }}" readonly>
+        <input type="hidden" name="User_id" value="{{ Auth::user()->id }}">
+    </div>
     <select class="form-select" name="priority" id="priority" required>
         <option value="">Selecciona una prioridad</option>
         @foreach ($priority as $priority)
