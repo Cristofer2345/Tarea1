@@ -1,20 +1,22 @@
 <?php
 
 namespace App\Http\Controllers;
-
+use Illuminate\Support\Facades\Gate;
 use App\Models\Priority;
 use App\Models\Task;
 use App\Models\TipoTarea;
 use App\Models\User;
 use Database\Seeders\tipoTarea as SeedersTipoTarea;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class TaskController extends Controller
+
 {
     public function index()
     {
 
-        $tasks = Task::all();
+        $tasks = Task::where('User_id', Auth::id())->get();
 
         return view('tasks.index', [
             'tasks' => $tasks
@@ -23,7 +25,6 @@ class TaskController extends Controller
 
     public function create()
     {
-
         return view('tasks.create',[
             'priorities' => Priority::all(),
             'user' => User::all(),
@@ -47,18 +48,18 @@ class TaskController extends Controller
             'description' => ['required', 'min:3'],
             'priority_id' => 'required|exists:priorities,id',
             'User_id' => 'required|exists:users,id', 
-           'tags' => 'array', // Asegúrate de que 'tags' sea un array
+           'tags' => 'array', 
         'tags.*' => 'exists:tipoTarea,id',
         ]);
     
-        // Crear una nueva tarea con los datos validados
+        
         $task = Task::create([
             'name' => $data['name'],
             'description' => $data['description'],
             'priority_id' => $data['priority_id'],
             'user_id' => $data['User_id'],
         ],);
-        // Adjuntar las etiquetas (tipotarea) a la tarea
+        
         $task->tipoTarea()->attach($data['tags']);
         $task  = Task::with(['tipoTarea'])->get();
         return redirect('/tasks');
@@ -66,14 +67,17 @@ class TaskController extends Controller
 
     public function edit(Task $task)
     {
-       $tipotarea = TipoTarea::all();
-       $priority = Priority::all();
-       
-        return view('tasks.edit', [
-            'task' => $task,
-             'priority'=> $priority,
-             'tipotarea'=>$tipotarea
-        ]);
+        if (Gate::allows('edit-post', $task)) {
+            $tipotarea = TipoTarea::all();
+            $priority = Priority::all();
+            return view('tasks.edit', [
+                'task' => $task,
+                'priority' => $priority,
+                'tipotarea' => $tipotarea
+            ]);
+        } else {
+            abort(403);
+        }
     }
 
     public function update(Task $task)
